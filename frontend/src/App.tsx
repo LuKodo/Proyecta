@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
-import GroupForm from "./components/GroupForm"
-import GroupList from "./components/GroupList";
+
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import TaskForm from "./components/TaskForm";
+import ProjectList from "./components/ProjectList";
+import ProjectForm from "./components/ProjectForm";
 
 function App() {
   const [username, setUsername] = useState('');
@@ -18,12 +21,20 @@ function App() {
 
   return (
     <div className="container">
-        <div>
-          <h1 className="h1 fw-bold">Herramienta de Gestión de Tareas y Proyectos</h1>
-          <GroupForm />
-          <br />
-          <GroupList />
-        </div>
+      <div className="row">
+        <h1 className="h1 fw-bold">Herramienta de Gestión de Tareas y Proyectos</h1>
+
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<ProjectList />} />
+            <Route path="/create-task/:idGroup" element={<TaskForm />} />
+            <Route path="/edit-task/:idTask" element={<TaskForm />} />
+
+            <Route path="/create-project" element={<ProjectForm />} />
+            <Route path="/edit-project/:id" element={<ProjectForm />} />
+          </Routes>
+        </BrowserRouter>
+      </div>
     </div>
 
   )
