@@ -2,7 +2,6 @@ import { Task } from '../types';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
-import { v4 as uuid } from "uuid";
 
 const TaskList = (params: { id: number }) => {
     const { id } = params
