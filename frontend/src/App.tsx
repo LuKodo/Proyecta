@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import Swal from 'sweetalert2'
 import GroupForm from "./components/GroupForm"
+import GroupList from "./components/GroupList";
 
 function App() {
   const [username, setUsername] = useState('');
@@ -10,35 +10,20 @@ function App() {
     const storedUsername = localStorage.getItem('username');
     if (storedUsername) {
       setUsername(storedUsername);
+    } else {
+      localStorage.setItem('username', 'test')
+      setUsername('test');
     }
   }, [username]);
 
-  const handleUsernameSubmit = (e: { preventDefault: () => void; }) => {
-    e.preventDefault();
-    // Guardar el nombre de usuario en el LocalStorage
-    localStorage.setItem('username', username);
-  };
-
   return (
     <div className="container">
-      {!username ? (
-        <form onSubmit={handleUsernameSubmit}>
-          <label htmlFor="username">Ingresa tu nombre de usuario:</label>
-          <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <button onClick={handleUsernameSubmit} type="submit">Guardar</button>
-        </form>
-      ) : (
-        // Renderizar el resto de la aplicación
         <div>
           <h1 className="h1 fw-bold">Herramienta de Gestión de Tareas y Proyectos</h1>
           <GroupForm />
+          <br />
+          <GroupList />
         </div>
-      )}
     </div>
 
   )
