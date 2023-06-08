@@ -79,7 +79,7 @@ const ProjectList = ({ projects, loading, error, fetchProjects }: params) => {
             </div>
             <div className='row'>
                 {projects && projects.map((project: Project) => (
-                    <div className='col-lg-4 offset-lg-0 col-4 offset-sm-0 col-sm-8 offset-sm-2 p-2' key={project?.id}>
+                    <div className='col-lg-4 offset-lg-0 col-4 offset-sm-0 col-sm-12 p-2' key={project?.id}>
                         <div className="card">
                             <div className="card-header bg-white">
                                 <p className='fw-bold h4 mb-0'>
