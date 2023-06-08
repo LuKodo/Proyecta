@@ -14,7 +14,7 @@ const TaskList = (params: { id: number }) => {
 
     const loadTasks = async () => {
         try {
-            const response = await fetch(`http://localhost:8000/tasks/${id}`, {
+            const response = await fetch(`proyectabackend-1-d0771943.deta.app/tasks/${id}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -34,7 +34,7 @@ const TaskList = (params: { id: number }) => {
     };
 
     const changeChecked = async (task: Task) => {
-        const response = await fetch(`http://localhost:8000/task/${task.id}`, {
+        const response = await fetch(`proyectabackend-1-d0771943.deta.app/task/${task.id}`, {
             method: "PATCH",
             headers: {
                 'Content-Type': 'application/json'
@@ -74,7 +74,7 @@ const TaskList = (params: { id: number }) => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const response = await fetch(`http://localhost:8000/task/${id}`, {
+                    const response = await fetch(`proyectabackend-1-d0771943.deta.app/task/${id}`, {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json'

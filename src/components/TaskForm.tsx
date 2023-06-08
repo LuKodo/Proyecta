@@ -38,7 +38,7 @@ const TaskForm = () => {
       return
     }
 
-    const response = await fetch(`http://localhost:8000/task${params.idTask ? '/'+params.idTask : ''}`, {
+    const response = await fetch(`proyectabackend-1-d0771943.deta.app/task${params.idTask ? '/'+params.idTask : ''}`, {
       method: params.idTask ? "PATCH" : "POST",
       headers: {
         'Content-Type': 'application/json'
@@ -64,7 +64,7 @@ const TaskForm = () => {
   useEffect(() => {
     if (params.idTask) {
       const response = async () => {
-        const response = await fetch(`http://localhost:8000/task/${params.idTask}`, {
+        const response = await fetch(`proyectabackend-1-d0771943.deta.app/task/${params.idTask}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'

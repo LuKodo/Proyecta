@@ -34,7 +34,7 @@ const ProjectForm = () => {
             return
         }
 
-        const response = await fetch(`http://localhost:8000/groups${params.id ? "/" + params.id : ''}`, {
+        const response = await fetch(`proyectabackend-1-d0771943.deta.app/groups${params.id ? "/" + params.id : ''}`, {
             method: params.id ? "PATCH" : "POST",
             headers: {
                 'Content-Type': 'application/json'
@@ -59,7 +59,7 @@ const ProjectForm = () => {
     useEffect(() => {
         if (params.id) {
             const response = async () => {
-                const response = await fetch(`http://localhost:8000/group/${params.id}`, {
+                const response = await fetch(`proyectabackend-1-d0771943.deta.app/group/${params.id}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'

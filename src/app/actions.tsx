@@ -3,7 +3,7 @@ export const fetchProjects = () => {
         dispatch({ type: 'FETCH_PROJECTS_REQUEST' });
 
         try {
-            const response = await fetch(`http://localhost:8000/groups`, {
+            const response = await fetch(`proyectabackend-1-d0771943.deta.app/groups`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
