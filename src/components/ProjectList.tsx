@@ -68,7 +68,7 @@ const ProjectList = ({ projects, loading, error, fetchProjects }: params) => {
     return (
         <>
             <div className='row'>
-                <div className="col-3 col-sm-4 p-2">
+                <div className="col-3 col-sm-12 p-2">
                     <Link
                         to="/create-project"
                         className="btn btn-sm btn-success"
