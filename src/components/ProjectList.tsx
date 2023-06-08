@@ -40,7 +40,7 @@ const ProjectList = ({ projects, loading, error, fetchProjects }: params) => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const response = await fetch(`proyectabackend-1-d0771943.deta.app/group/${id}`, {
+                    const response = await fetch(`https://proyectabackend-1-d0771943.deta.app/group/${id}`, {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json'
