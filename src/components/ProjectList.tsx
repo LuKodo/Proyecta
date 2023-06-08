@@ -68,7 +68,7 @@ const ProjectList = ({ projects, loading, error, fetchProjects }: params) => {
     return (
         <>
             <div className='row'>
-                <div className="col-3 col-sm-12 p-2">
+                <div className="col-md-3 col-sm-12 p-2">
                     <Link
                         to="/create-project"
                         className="btn btn-sm btn-success"
@@ -79,7 +79,7 @@ const ProjectList = ({ projects, loading, error, fetchProjects }: params) => {
             </div>
             <div className='row'>
                 {projects && projects.map((project: Project) => (
-                    <div className='col-lg-4 offset-lg-0 col-4 offset-sm-0 col-sm-12 p-2' key={project?.id}>
+                    <div className='col-lg-4 offset-lg-0 col-md-4 offset-sm-0 col-sm-12 p-2' key={project?.id}>
                         <div className="card">
                             <div className="card-header bg-white">
                                 <p className='fw-bold h4 mb-0'>
