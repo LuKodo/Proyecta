@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
-
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import TaskForm from "./components/TaskForm";
 import ProjectList from "./components/ProjectList";
-import ProjectForm from "./components/ProjectForm";
 
 function App() {
   const [username, setUsername] = useState('');
@@ -21,22 +17,15 @@ function App() {
 
   return (
     <div className="container">
-      <div className="row">
-        <h1 className="h1 fw-bold">Herramienta de Gestión de Tareas y Proyectos</h1>
-
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<ProjectList />} />
-            <Route path="/create-task/:idGroup" element={<TaskForm />} />
-            <Route path="/edit-task/:idTask" element={<TaskForm />} />
-
-            <Route path="/create-project" element={<ProjectForm />} />
-            <Route path="/edit-project/:id" element={<ProjectForm />} />
-          </Routes>
-        </BrowserRouter>
+      <div className="columns">
+        <div className="column is-half">
+          <h1 className="is-size-3 has-text-weight-bold">Herramienta de Gestión de Tareas y Proyectos</h1>
+        </div>
       </div>
-    </div>
+      
+      <ProjectList />
 
+    </div>
   )
 }
 

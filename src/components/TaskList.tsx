@@ -1,10 +1,12 @@
-import { Task } from '../types';
-import { Link } from 'react-router-dom';
+import { Task, iTask } from '../types';
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
+import { instance } from '../services/http';
 
-const TaskList = (params: { id: number }) => {
-    const { id } = params
+
+
+const TaskList = (params: iTask) => {
+    const { idTask, idProject } = params
     const [tasks, setTasks] = useState<Array<Task> | undefined>(undefined)
 
     useEffect(() => {
@@ -12,28 +14,22 @@ const TaskList = (params: { id: number }) => {
     }, [])
 
     const loadTasks = async () => {
-        try {
-            const response = await fetch(`https://proyectabackend-1-d0771943.deta.app/tasks/${id}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json()
-                setTasks(data)
-
-            } else {
-                throw new Error('Error al cargar la información');
+        instance.get(`tasks/${idProject}`).then((response) => {
+            if (response.status === 200) {
+                setTasks(response.data)
             }
-        } catch (error) {
-            console.error(error);
-        }
+        }).catch((error) => {
+            Swal.fire({
+                toast: true,
+                text: error,
+                timer: 3000,
+                position: "top-end"
+            })
+        })
     };
 
     const changeChecked = async (task: Task) => {
-        const response = await fetch(`https://proyectabackend-1-d0771943.deta.app/task/${task.id}`, {
+        const response = await fetch(`http://localhost:8000/task/${task.id}`, {
             method: "PATCH",
             headers: {
                 'Content-Type': 'application/json'
@@ -43,7 +39,7 @@ const TaskList = (params: { id: number }) => {
                 title: task.title,
                 description: task.description,
                 state: !task.state,
-                group_id: task.group_id
+                project_id: task.project_id
             })
         });
 
@@ -51,9 +47,10 @@ const TaskList = (params: { id: number }) => {
             const data = await response.json();
 
             Swal.fire({
-                title: 'Error!',
+                toast: true,
+                timer: 3000,
                 text: data.detail,
-                icon: 'error',
+                position: "top-end"
             })
         } else {
             loadTasks()
@@ -61,11 +58,9 @@ const TaskList = (params: { id: number }) => {
     }
 
 
-    const unlink = (id: string) => {
+    const unlink = (id: number | undefined) => {
         Swal.fire({
-            title: 'Eliminando Grupo',
-            icon: "warning",
-            text: "Estás seguro?",
+            title: 'Estás seguro?',
             confirmButtonText: "Eliminar",
             showCancelButton: true,
             cancelButtonText: "Cancelar"
@@ -73,7 +68,7 @@ const TaskList = (params: { id: number }) => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const response = await fetch(`https://proyectabackend-1-d0771943.deta.app/task/${id}`, {
+                    const response = await fetch(`http://localhost:8000/task/${id}`, {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json'
@@ -88,7 +83,12 @@ const TaskList = (params: { id: number }) => {
                 } catch (error) {
                     console.error(error);
                 }
-                Swal.fire('Eliminado!', '', 'success')
+                Swal.fire({
+                    title: 'Eliminado!',
+                    toast: true,
+                    timer: 3000,
+                    position: "top-end"
+                })
             }
 
         })
@@ -96,16 +96,6 @@ const TaskList = (params: { id: number }) => {
 
     return (
         <>
-            <div className='row'>
-                <div className="col">
-                    <Link
-                        to={`/create-task/${params.id}`}
-                        className="btn btn-sm btn-success"
-                    >
-                        <i className='bi bi-plus-circle-fill'></i> Crear Tarea
-                    </Link>
-                </div>
-            </div>
             {tasks === undefined ? (
                 <p className="placeholder-glow">
                     <span className="placeholder col-12"></span>
@@ -113,33 +103,37 @@ const TaskList = (params: { id: number }) => {
             ) :
                 tasks?.length > 0 ? (
                     <>
-                        <ul className="list-project mt-2">
-                            {tasks.map((task: Task, index) => (
-                                <li className="list-project-item d-flex justify-content-between align-items-start" key={task.id}>
-                                    <div className="ms-2 me-auto">
-                                        <div className={`fw-bold ${task.state ? 'text-success text-decoration-line-through' : ''}`}>{index+1}. {task.title}</div>
-                                    </div>
-                                    <div className="p-1">
-                                        <button className='btn btn-info btn-sm' onClick={() => { changeChecked(task) }}>
-                                            {task.state ?
-                                                (<i className='bi bi-arrow-clockwise'></i>) :
-                                                (<i className='bi bi-check-all'></i>)
-                                            }
-                                        </button>
-                                    </div>
-                                    <div className="p-1">
-                                        <Link to={`/edit-task/${task.id}`} className='btn btn-warning btn-sm'>
-                                            <i className='bi bi-pencil-fill'></i>
-                                        </Link>
-                                    </div>
-                                    <div className="p-1">
-                                        <button className='btn btn-danger btn-sm' onClick={() => unlink(task.id)}>
-                                            <i className='bi bi-trash'></i>
-                                        </button>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
+                        <table className='table is-bordered is-striped is-narrow is-hoverable is-fullwidth'>
+                            <thead>
+                                <tr>
+                                    <td className='has-text-weight-bold'>Actividad</td>
+                                    <td className='has-text-weight-bold'>Acciones</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {tasks.map((task: Task, index) => (
+                                    <tr className="list-project-item d-flex justify-content-between align-items-start" key={task.id}>
+                                        <td className="ms-2 me-auto">
+                                            <div className={`has-text-semibold ${task.state ? 'has-text-grey-light' : ''}`} style={{ textDecoration: task.state ? 'line-through' : 'none' }}>{index + 1}. {task.title}</div>
+                                        </td>
+                                        <td colSpan={3}>
+                                            <button className='button is-info is-small mr-1' onClick={() => { changeChecked(task) }}>
+                                                {task.state ?
+                                                    (<i className='bi bi-arrow-clockwise'></i>) :
+                                                    (<i className='bi bi-check-all'></i>)
+                                                }
+                                            </button>
+                                            <button className='button is-warning is-small mr-1'>
+                                                <i className='bi bi-pencil-fill'></i>
+                                            </button>
+                                            <button className='button is-danger is-small' onClick={() => unlink(task.id)}>
+                                                <i className='bi bi-trash'></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </>
                 ) : (<>"Este grupo no tiene tareas, deberias crear una"</>)
             }

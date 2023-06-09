@@ -1,18 +1,20 @@
 import Swal from "sweetalert2";
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from "react-router-dom";
-import { v4 as uuid } from "uuid";
-import { Project } from "../types";
+import { ProjectCreate } from "../types";
+import { instance } from "../services/http";
 
-const ProjectForm = () => {
-    const params = useParams()
+type iParams = {
+    idProject: number | null,
+    setModalProject: (arg: boolean) => void,
+    setIdProjectEdit: (arg: null) => void,
+    fetchProjects: () => void
+}
 
-    const [project, setGroup] = useState<Project>({
-        id: uuid(),
+const ProjectForm = (params: iParams) => {
+    const { idProject, setIdProjectEdit, setModalProject, fetchProjects } = params
+    const [project, setGroup] = useState<ProjectCreate>({
         name: ""
-    });
-
-    const navigate = useNavigate()
+    })
 
     const handleChange = (e: { target: { name: string; value: string; }; }) => {
         setGroup({
@@ -34,64 +36,75 @@ const ProjectForm = () => {
             return
         }
 
-        const response = await fetch(`https://proyectabackend-1-d0771943.deta.app/groups${params.id ? "/" + params.id : ''}`, {
-            method: params.id ? "PATCH" : "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(project)
-        });
-
-        if (response.ok) {
-            navigate('/')
-        } else {
-            const data = await response.json();
-
-            Swal.fire({
-                title: 'Error!',
-                text: data.detail,
-                icon: 'error',
+        idProject ? (
+            instance.patch(`projects/${idProject}`, JSON.stringify(project)).then((response) => {
+                if (response.status === 200) {
+                    setIdProjectEdit(null)
+                    setModalProject(false)
+                    fetchProjects()
+                }
+            }).catch((error) => {
+                Swal.fire({
+                    toast: true,
+                    text: error,
+                    timer: 3000,
+                    position: "top-end"
+                })
             })
-        }
-        navigate('/')
+        ) : (
+            instance.post("projects", JSON.stringify(project)).then((response) => {
+                if (response.status === 200) {
+                    setIdProjectEdit(null)
+                    setModalProject(false)
+                    fetchProjects()
+                }
+            }).catch((error) => {
+                Swal.fire({
+                    text: error,                    
+                    toast: true,
+                    timer: 3000,
+                    position: "top-end"
+                })
+            })
+        )
     };
 
     useEffect(() => {
-        if (params.id) {
-            const response = async () => {
-                const response = await fetch(`https://proyectabackend-1-d0771943.deta.app/group/${params.id}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    setGroup(data)
-                }
-            }
-            response()
+        if (idProject) {
+            instance.get(`project/${idProject}`).then((response) => {
+                setGroup(response.data)
+            }).catch((error) => {
+                Swal.fire({
+                    text: error,
+                    toast: true,
+                    timer: 3000,
+                    position: "top-end"
+                })
+            })
         }
-    }, [params])
+    }, [idProject])
 
     return (
-        <div className="col-lg-3 col-sm-12">
-            <h2 className='h3 fw-bold'>{params.id ? "Editar" : "Crear"} Proyecto</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                    <label htmlFor="groupName">Nombre del Proyecto:</label>
-                    <input
-                        name="name"
-                        type="text"
-                        id="groupName"
-                        value={project.name}
-                        onChange={handleChange}
-                        className='form-control'
-                    />
-                </div>
-                <button className='btn btn-success' type="submit"><i className="bi bi-plus-circle-fill"></i> Crear</button>
-            </form>
+        <div className="box">
+            <div className="column is-12">
+                <h2 className='is-size-4 has-text-weight-bold'>{idProject ? "Editar" : "Crear"} Proyecto</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className="field mt-5">
+                        <label className="label">Nombre del Proyecto</label>
+                        <div className="control">
+                            <input
+                                name="name"
+                                className="input is-small"
+                                type="text"
+                                value={project.name}
+                                onChange={handleChange}
+                            />
+                        </div>
+                    </div>
+
+                    <button className='button is-small is-primary' type="submit"><i className="bi bi-plus-circle-fill"></i>&nbsp;Crear</button>&nbsp;
+                </form>
+            </div>
         </div>
     );
 };

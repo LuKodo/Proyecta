@@ -10,14 +10,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@sweetalert2/theme-bulma": "^5.0.15",
     "@reduxjs/toolkit": "^1.9.5",
+    "axios": "^1.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.7",
     "react-router-dom": "^6.12.1",
     "redux": "^4.2.1",
     "redux-thunk": "^2.4.2",
-    "sweetalert2": "^11.7.11",
+    "sweetalert2": "^11.7.12",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

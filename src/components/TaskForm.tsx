@@ -1,22 +1,26 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { v4 as uuid } from "uuid";
 
 import Swal from 'sweetalert2'
 import { Task } from "../types";
+import { instance } from "../services/http";
 
-const TaskForm = () => {
-  const params = useParams()
+type iParams = {
+  idProject: number | null,
+  idTask: number | null,
+  setIdProject: (arg: null) => void,
+  setIdTask: (arg: null) => void,
+  setModalTask: (arg: boolean) => void,
+  fetchProjects: () => void
+}
 
+const TaskForm = (params: iParams) => {
+  const { idProject, idTask, setIdProject, setIdTask, setModalTask, fetchProjects } = params
   const [task, setTask] = useState<Task>({
-    id: uuid(),
     title: "",
     description: "",
     state: false,
-    group_id: Number(params.idGroup)
-  });
-
-  const navigate = useNavigate()
+    project_id: idProject
+  })
 
   const handleChange = (e: { target: { name: string; value: string; }; }) => {
     setTask({
@@ -38,33 +42,44 @@ const TaskForm = () => {
       return
     }
 
-    const response = await fetch(`https://proyectabackend-1-d0771943.deta.app/task${params.idTask ? '/'+params.idTask : ''}`, {
-      method: params.idTask ? "PATCH" : "POST",
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(task)
-    });
-
-    if (response.ok) {
-      navigate('/')
-    } else {
-      const data = await response.json();
-
-      Swal.fire({
-        title: 'Error!',
-        text: data.detail,
-        icon: 'error',
+    idTask ? (
+      instance.patch(`task/${idTask}`, JSON.stringify(task)).then((response) => {
+        if (response.status === 200) {
+          setIdProject(null)
+          setModalTask(false)
+          fetchProjects()
+        }
+      }).catch((error) => {
+        Swal.fire({
+          toast: true,
+          text: error,      
+          timer: 3000,  
+          position: "top-end"  
+        })
       })
-    }
-
-    navigate(-2)
+    ) : (
+      instance.post("task", JSON.stringify(task)).then((response) => {
+        if (response.status === 200) {
+          setIdProject(null)
+          setIdTask(null)
+          setModalTask(false)
+          fetchProjects()
+        }
+      }).catch((error) => {
+        Swal.fire({
+          toast: true,
+          text: error,          
+          timer: 3000,
+          position: "top-end"
+        })
+      })
+    )
   }
 
   useEffect(() => {
-    if (params.idTask) {
+    if (idTask) {
       const response = async () => {
-        const response = await fetch(`https://proyectabackend-1-d0771943.deta.app/task/${params.idTask}`, {
+        const response = await fetch(`http://localhost:8000/task/${idTask}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -78,56 +93,45 @@ const TaskForm = () => {
       }
       response()
     }
-  }, [params])
+  }, [])
 
   return (
-    <div className='row'>
-      <div className='col-6 p-2'>
+    <div className="box">
+      <div className='column is-12'>
+        <h2 className='is-size-4 has-text-weight-bold'>{params.idTask ? "Editar" : "Crear"} Tarea</h2>
         <form onSubmit={handleSubmit}>
-          <div className="card border-0">
-            <div className="card-header border-0 bg-white">
-              <h2 className='h3 fw-bold'>{params.idTask ? "Editar" : "Crear"} Tarea</h2>
-            </div>
-            <div className="card-body">
-              <div className="mb-3">
-                <label htmlFor="title">Título:</label>
-                <input
-                  id="title"
-                  type="text"
-                  name="title"
-                  value={task.title}
-                  onChange={handleChange}
-                  className='form-control'
-                />
-              </div>
-              <div>
-                <label htmlFor="description">Descripción del Grupo:</label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={task.description}
-                  onChange={handleChange}
-                  className='form-control'
-                ></textarea>
-              </div>
-            </div>
-            <div className="card-footer bg-white border-0">
-              <button className='btn btn-success' type="submit">
-                <i className="bi bi-plus-circle-fill"></i> Guardar
-              </button>
-              &nbsp;
-              <Link
-                to="/"
-                className="btn btn-secondary"
-              >
-                <i className='bi bi-arrow-left'></i> Volver
-              </Link>
+          <div className="field mt-5">
+            <label className="label">Título:</label>
+            <div className="control">
+              <input
+                id="title"
+                type="text"
+                name="title"
+                value={task.title}
+                onChange={handleChange}
+                className='input is-small'
+              />
             </div>
           </div>
+          <div className="field">
+            <label className="label">Descripción del Grupo:</label>
+            <textarea
+              id="description"
+              name="description"
+              value={task.description}
+              onChange={handleChange}
+              className='textarea is-small'
+            ></textarea>
+          </div>
+
+          <button className='button is-small is-primary' type="submit">
+            <i className="bi bi-plus-circle-fill"></i>&nbsp;Guardar
+          </button>
+
         </form>
-      </div>
-    </div>
-  );
+      </div >
+    </div >
+  )
 };
 
 export default TaskForm;

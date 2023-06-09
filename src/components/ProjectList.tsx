@@ -1,11 +1,13 @@
 import { Project } from '../types';
-import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { connect } from 'react-redux';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import TaskList from './TaskList';
 
 import { fetchProjects } from '../app/actions';
+import ProjectForm from './ProjectForm';
+import TaskForm from './TaskForm';
+import { instance } from '../services/http';
 
 type params = {
     projects: Array<Project>,
@@ -16,6 +18,12 @@ type params = {
 
 // eslint-disable-next-line react-refresh/only-export-components
 const ProjectList = ({ projects, loading, error, fetchProjects }: params) => {
+    const [idProject, setIdProject] = useState<number | null>(null)
+    const [idTask, setIdTask] = useState<null | number>(null)
+
+    const [modalProject, setModalProject] = useState<boolean>(false)
+    const [modalTask, setModalTask] = useState<boolean>(false)
+
     useEffect(() => {
         fetchProjects();
     }, [fetchProjects]);
@@ -28,85 +36,112 @@ const ProjectList = ({ projects, loading, error, fetchProjects }: params) => {
         return <p>Error al cargar proyectos</p>;
     }
 
-    const unlink = (id: string) => {
+    const unlink = (idProject: number) => {
         Swal.fire({
-            title: 'Eliminando Grupo',
-            icon: "warning",
-            text: "Estás seguro?",
+            title: 'Estás seguro?',
             confirmButtonText: "Eliminar",
             showCancelButton: true,
             cancelButtonText: "Cancelar"
 
         }).then(async (result) => {
             if (result.isConfirmed) {
-                try {
-                    const response = await fetch(`https://proyectabackend-1-d0771943.deta.app/group/${id}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
-
-                    if (response.ok) {
-                        Swal.fire('Eliminado!', '', 'success')
+                instance.delete(`project/${idProject}`).then((response) => {
+                    if (response.status === 200) {
+                        Swal.fire({
+                            title:'Eliminado!',
+                            toast: true,
+                            timer: 3000,
+                            position: "top-end"
+                        })
                         fetchProjects()
                     }
-
-                    const data = await response.json()
-
-                    // El proyecto no puede eliminarse si tiene actividades
-                    if (response.status === 444) {
-                        Swal.fire('Error!', data.detail, 'error')
-                    }
-                } catch (error) {
-                    //throw new Error(error ? error : '')
-                }
+                }).catch((error) => {
+                    Swal.fire({                        
+                        text: error,
+                        toast: true, 
+                        timer: 3000, 
+                        position: "top-end"                   
+                    })
+                })
             }
         })
-    };
+    }
+
+    const editProject = () => {
+        setIdProject(idProject)
+        setModalProject(true)
+    }
+
+    const createTask = (idProjectLocal: number) => {
+        
+        setIdProject(idProjectLocal)
+        setModalTask(true)
+    }
 
     return (
         <>
-            <div className='row'>
-                <div className="col-md-3 col-sm-12 p-2">
-                    <Link
-                        to="/create-project"
-                        className="btn btn-sm btn-success"
+            <div className='columns'>
+                <div className="column is-3">
+                    <button
+                        onClick={() => setModalProject(true)}
+                        className="button is-primary is-small u-full-width"
                     >
-                        <i className='bi bi-plus-circle-fill'></i> Nuevo Proyecto
-                    </Link>
+                        <i className='bi bi-plus-circle-fill'></i>&nbsp;Nuevo Proyecto
+                    </button>
                 </div>
             </div>
-            <div className='row'>
+            <div className='columns'>
                 {projects && projects.map((project: Project) => (
-                    <div className='col-lg-4 offset-lg-0 col-md-4 offset-sm-0 col-sm-12 p-2' key={project?.id}>
+                    <div className="column is-4-desktop is-12-mobile" key={project?.id}>
                         <div className="card">
-                            <div className="card-header bg-white">
-                                <p className='fw-bold h4 mb-0'>
-                                    {project?.name}
+                            <header className="card-header">
+                                <p className="card-header-title has-text-primary">
+                                    {project.name}
                                 </p>
+                                <button className="card-header-icon" aria-label="more options">
+                                    <span className="icon">
+                                        <i className="fas fa-angle-down" aria-hidden="true"></i>
+                                    </span>
+                                </button>
+                            </header>
+                            <div className="card-content">
+                                <div className="content">
+                                    <TaskList idTask={idTask} idProject={project.id} />
+                                </div>
                             </div>
-                            <div className="card-body">
-                                <TaskList id={Number(project.id)} />
-                            </div>
-                            <div className="card-footer bg-white">
-                                <Link className="btn btn-sm btn-success text-white" to={`/edit-project/${project.id}`}><i className='bi bi-pencil-square'></i> Editar</Link> &nbsp;
-
-                                <button className="btn btn-sm btn-danger text-white" onClick={() => unlink(project.id)}><i className='bi bi-trash-fill'></i> Borrar</button>
-
-                            </div>
+                            <footer className="card-footer">
+                                <button className="card-footer-item tag button is-primary m-2" onClick={() => createTask(project.id)}><i className='bi bi-pencil-square'></i>&nbsp;Crear Tarea</button>
+                                <button className="card-footer-item tag button is-warning m-2" onClick={() => editProject()}><i className='bi bi-pencil-square'></i>&nbsp;Editar Proyecto</button>
+                                <a className="card-footer-item tag button is-danger m-2" onClick={() => unlink(project.id)}><i className='bi bi-trash-fill'></i>&nbsp;Borrar Proyecto</a>
+                            </footer>
                         </div>
                     </div>
                 ))}
+            </div>
+
+            <div className={`modal ${modalProject ? 'is-active' : ''}`}>
+                <div className="modal-background" onClick={() => setModalProject(false)}></div>
+                <div className="modal-content">
+                    <ProjectForm idProject={idProject} setIdProjectEdit={setIdProject} setModalProject={setModalProject} fetchProjects={fetchProjects} />
+                </div>
+                <button className="modal-close is-large" onClick={() => setModalProject(false)} aria-label="close"></button>
+            </div>
+
+            <div className={`modal ${modalTask ? 'is-active' : ''}`}>
+                <div className="modal-background" onClick={() => setModalTask(false)}></div>
+                <div className="modal-content">
+                    <TaskForm fetchProjects={fetchProjects} setIdTask={setIdTask} setIdProject={setIdProject} setModalTask={setModalTask} idProject={idProject} idTask={idTask} />
+                </div>
+                <button className="modal-close is-large" onClick={() => setModalTask(false)} aria-label="close"></button>
             </div>
         </>
     )
 }
 
-const mapStateToProps = (state: { project: { projects: any; loading: any; error: any; }; }) => ({
-  projects: state.project.projects,
-  loading: state.project.loading,
-  error: state.project.error
+const mapStateToProps = (state: { project: { projects: Array<Project>; loading: boolean; error: string; }; }) => ({
+    projects: state.project.projects,
+    loading: state.project.loading,
+    error: state.project.error
 });
 
 const mapDispatchToProps = {

@@ -1,12 +1,18 @@
 export type Task = {
-  id: string,
+  id?: number,
   title: string,
   description: string,
   state: boolean,
-  group_id: number | undefined
+  project_id: number | undefined | null
 }
 
 export type Project = {
-  id: string,
+  id: number,
   name: string
 }
+
+export type ProjectCreate = {
+  name: string
+}
+
+export type iTask = { idTask: number | null, idProject: number | null | undefined }

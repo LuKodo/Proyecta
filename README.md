@@ -12,4 +12,4 @@ Para el CSS se hace uso de Bootstrap
 
 Para ver la implementación
 FrontEnd en [Netlify](https://brilliant-rabanadas-105dfa.netlify.app/)
-BackEnd en [Deta Space](https://proyectabackend-1-d0771943.deta.app/docs)
+BackEnd en [Deta Space](http://localhost:8000/docs)
