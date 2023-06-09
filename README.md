@@ -6,7 +6,7 @@
 
 Usa **React** como base (con **Typescript**)
 Maneja el estado de los Proyectos con **Redux** (solo para el ejemplo)
-Como base de datos usa **SQLite** (por rapidez en la configuración)
+Como base de datos usa __Postgresql__ (por rapidez en la configuración)
 Hace peticiones a una API desarrollada en FastAPI (Python)
 Para el CSS se hace uso de Bootstrap
 
